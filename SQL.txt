@@ -1,0 +1,31 @@
+1. Если я правильно понял задание, то достаточно проверять по первой таблице данным образом:
+
+SELECT * 
+FROM tUser u
+WHERE u.MAIL IS NULL;
+
+2. Выбираю пользователей, у которых с токеном все ОК и отсекаю их в основном селекте:
+
+SELECT *
+FROM tUser u 
+WHERE u.USERID NOT IN ( SELECT a.USERID 
+                        FROM tAccessToken a
+                        WHERE a.EXPIREDATE >= NOW() );
+
+
+3. Считаю, что вход в систему  - это запись в tAudit с ActionType = 3 - LogInPass:
+
+SELECT *
+FROM tUser u 
+WHERE u.USERID NOT IN ( SELECT a.USERID 
+                        FROM tAudit a
+                        WHERE a.ACTIONTYPE = 3 );
+
+4. Считаю количество "фейлов" в Аудите, сортирую по убыванию и показываю 4 записи:
+
+SELECT a.USERID, COUNT(*) LoginFailCount
+FROM tAudit a
+WHERE a.ACTIONTYPE = 5 
+GROUP BY a.USERID 
+ORDER BY LoginFailCount DESC 
+LIMIT 4
